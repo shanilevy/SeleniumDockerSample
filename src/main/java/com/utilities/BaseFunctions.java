@@ -2061,17 +2061,19 @@ public class BaseFunctions extends TestBase {
 
 	public void getUILogs() {
 		checkThreadPauseRequest();
+		try {
+			if (property_showBrowserLog) {
+				LogEntries logs = driver.manage().logs().get(LogType.BROWSER);
 
-		if (property_showBrowserLog) {
-			LogEntries logs = driver.manage().logs().get(LogType.BROWSER);
-
-			for (LogEntry entries : logs) {
-				logBrowserLogs(entries.getMessage());
+				for (LogEntry entries : logs) {
+					logBrowserLogs(entries.getMessage());
+				}
 			}
-		}
 
-		if (property_showNetworkLog) {
-			getNetworkLogs();
+			if (property_showNetworkLog) {
+				getNetworkLogs();
+			}
+		}catch(Throwable t){
 		}
 	}
 
@@ -2171,7 +2173,7 @@ public class BaseFunctions extends TestBase {
 			}
 			return mapApiRequests.get();
 		} catch (Throwable t) {
-			logException(t);
+			//logException(t);
 		}
 		return null;
 	}
@@ -2261,6 +2263,8 @@ public class BaseFunctions extends TestBase {
 			}
 		} catch (Throwable t) {
 			logException(t);
+		}finally{
+			mapApiRequests = new ThreadLocal<>();
 		}
 	}
 

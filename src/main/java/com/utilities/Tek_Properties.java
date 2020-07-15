@@ -194,7 +194,7 @@ public class Tek_Properties {
     static {
         try {
             reportProperties = new Properties();
-            FileInputStream f = new FileInputStream("framework.properties");
+            FileInputStream f = new FileInputStream("report/framework.properties");
             reportProperties.load(f);
             property_screenshot_on_step = getBoolean(reportProperties.get("SCREENSHOT_ON_STEP"));
             property_takeScreenshot = getBoolean(reportProperties.get("tekion.reports.takescreenshot"));
@@ -231,11 +231,11 @@ public class Tek_Properties {
         String cwd = System.getProperty("user.dir");
         currentRunResults = cwd + "/results/" + currentRunResultFolder;
         File resultDir = new File(currentRunResults);
-        File suiteCss = new File(cwd + "/suite.css");
-        File testReportCss = new File(cwd + "/test_report.css");
-        File tableChangeJs = new File(cwd + "/tableChange.js");
-        File collpasibleJs = new File(cwd + "/collapsible.js");
-        File imgDir = new File(cwd + "/img");
+        File suiteCss = new File(cwd + "/report/suite.css");
+        File testReportCss = new File(cwd + "/report/test_report.css");
+        File tableChangeJs = new File(cwd + "/report/tableChange.js");
+        File collpasibleJs = new File(cwd + "/report/collapsible.js");
+        File imgDir = new File(cwd + "/report/img");
         if (!resultDir.exists()) {
             resultDir.mkdir();
             FileUtils.copyFileToDirectory(testReportCss, resultDir);
@@ -562,7 +562,7 @@ public class Tek_Properties {
             fileWriter.append("<html>");
             fileWriter.append("<head>");
             fileWriter.append("<link rel=stylesheet type=text/css href=suite.css>");
-            fileWriter.append("<script type=\"text/javascript\" src=\"tableChange.js\"></script>");
+            fileWriter.append("<script type=\"text/javascript\" src=\"report/tableChange.js\"></script>");
             fileWriter.append("</head>");
             fileWriter.append(showLogo("left"));
             fileWriter.append("<br>");
@@ -667,7 +667,7 @@ public class Tek_Properties {
     }
 
     private CharSequence showLogo(String position) {
-        return "<img src=Tekion.gif style=float:" + position + ";>";
+        return "<img src=report/Tekion.gif style=float:" + position + ";>";
     }
 
     private void pieChart(FileWriter fw, int testsCount, int passedTestsCount, int failedTestsCount, int notStartedTestsCount) {

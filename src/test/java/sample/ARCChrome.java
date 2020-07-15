@@ -12,7 +12,11 @@ public class ARCChrome extends BaseFunctions {
 
     @BeforeClass(alwaysRun = true)
     public void beforeClass(){
-        getProperties().setProperty(TLDriverFactory.BROWSER,TLDriverFactory.CHROME);
+        if(Main.isDocker){
+            getProperties().setProperty(TLDriverFactory.BROWSER,TLDriverFactory.CHROME_DOCKER);
+        }else {
+            getProperties().setProperty(TLDriverFactory.BROWSER, TLDriverFactory.CHROME);
+        }
     }
 
     @BeforeMethod(alwaysRun = true)

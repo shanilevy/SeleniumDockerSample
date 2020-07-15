@@ -68,10 +68,6 @@ public class TLDriverFactory extends Tek_Properties {
 
     static {
         try {
-            //	WebDriverManager.chromedriver().clearPreferences();
-            WebDriverManager.chromedriver().setup();
-            //WebDriverManager.chromedriver().version("76.0.3809.126").setup();
-            //WebDriverManager.firefoxdriver().setup();
             relaunchFlag.set(true);
         }catch(Throwable t){}
     }
@@ -135,6 +131,7 @@ public class TLDriverFactory extends Tek_Properties {
     public synchronized static void setTLDriver(String browser, boolean isIncognito) throws Throwable {
         switch (browser.toUpperCase()) {
             case FIREFOX:
+                WebDriverManager.firefoxdriver().setup();
                 DesiredCapabilities caps = new DesiredCapabilities();
                 caps.setCapability("download.prompt_for_download", "false");
                 caps.setCapability("directory_upgrade", "true");
@@ -166,6 +163,7 @@ public class TLDriverFactory extends Tek_Properties {
                 break;
 
             case CHROME:
+                WebDriverManager.chromedriver().setup();
                 DesiredCapabilities cap = new DesiredCapabilities();
                 cap.setCapability("download.prompt_for_download", "false");
                 cap.setCapability("directory_upgrade", "true");
@@ -381,7 +379,7 @@ public class TLDriverFactory extends Tek_Properties {
             if (Mobile_BaseFunctions.nvl(mobileBuildBranch, "").equals("") == false) {
                 if (appInstalledUDID.contains(UDID) == false) {
                     if (appInstalledUDID.size() == 0) {
-                        new S3Bucket().downloadAppFromS3(environment, mobileBuildBranch);
+                        //new S3Bucket().downloadAppFromS3(environment, mobileBuildBranch);
                         System.out.println("App downloaded path : " + Tek_Properties.appPath);
                     }
                     capabilities.setCapability("app", Tek_Properties.appPath);

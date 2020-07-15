@@ -8,10 +8,6 @@ RUN apt-get install -y p7zip \
     zip \
     unzip
 
-# Copy the fat jar file.
-COPY target/SeleniumDocker-1.0-SNAPSHOT-fat-tests.jar app/SeleniumDocker-1.0-SNAPSHOT-fat-tests.jar
-#COPY --from=build /app/target/SeleniumDocker-1.0-SNAPSHOT-fat-tests.jar /app/SeleniumDocker-1.0-SNAPSHOT-fat-tests.jar
-
 # Install Chrome for Selenium
 RUN curl http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_83.0.4103.116-1_amd64.deb -o /chrome.deb
 #COPY chrome.deb /
@@ -55,6 +51,7 @@ RUN mkdir -p /usr/share/maven /usr/share/maven/ref \
 ENV MAVEN_HOME /usr/share/maven
 ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
 
+RUN mvn package
 #COPY src /app/src
 #COPY pom.xml /app
 COPY testng /app/testng

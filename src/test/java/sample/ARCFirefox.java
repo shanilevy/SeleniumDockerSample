@@ -12,7 +12,11 @@ public class ARCFirefox extends BaseFunctions {
 
     @BeforeClass(alwaysRun = true)
     public void beforeClass(){
-        getProperties().setProperty(TLDriverFactory.BROWSER,TLDriverFactory.FIREFOX);
+        if(Main.isDocker){
+            getProperties().setProperty(TLDriverFactory.BROWSER,TLDriverFactory.FIREFOX_DOCKER);
+        }else{
+            getProperties().setProperty(TLDriverFactory.BROWSER,TLDriverFactory.FIREFOX);
+        }
     }
 
     @BeforeMethod(alwaysRun = true)
@@ -25,8 +29,12 @@ public class ARCFirefox extends BaseFunctions {
 
     @Test(enabled = true)
     public void arcFirefoxDemo(){
-        HomePage homePage = new HomePage();
-        homePage.showDealership();
-        homePage.showUserInfo();
+        try {
+            HomePage homePage = new HomePage();
+            homePage.showDealership();
+            homePage.showUserInfo();
+        }catch(Throwable t){
+            logException(t);
+        }
     }
 }
