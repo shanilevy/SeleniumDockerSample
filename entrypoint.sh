@@ -1,2 +1,3 @@
 #!/bin/sh
-mvn -f /app/pom.xml clean install -DsuiteXmlFile=$1
+mvn -f pom.xml clean test -DsuiteXmlFile=$1
+/bin/bash

@@ -1,28 +1,44 @@
 FROM kshivaprasad/java
 RUN apt-get update
-RUN apt-get upgrade --fix-missing -y
+#RUN apt-get upgrade --fix-missing -y
 RUN apt-get install -y curl
 RUN apt-get install -y p7zip \
     p7zip-full \
     unace \
     zip \
-    unzip
+    unzip \
+    bzip2
 
-# Install Chrome for Selenium
-RUN curl http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_83.0.4103.116-1_amd64.deb -o /chrome.deb
-#COPY chrome.deb /
+#Firefox
+ARG FIREFOX_VERSION=78.0.2
+ARG CHROME_VERSION=83.0.4103.116
+ARG CHROMDRIVER_VERSION=83.0.4103.39
+ARG FIREFOXDRIVER_VERSION=0.26.0
+
+# Install Chrome
+RUN curl http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_$CHROME_VERSION-1_amd64.deb -o /chrome.deb
 RUN dpkg -i /chrome.deb || apt-get install -yf
 RUN rm /chrome.deb
 
+# Install firefox
+RUN wget --no-verbose -O /tmp/firefox.tar.bz2 https://download-installer.cdn.mozilla.net/pub/firefox/releases/$FIREFOX_VERSION/linux-x86_64/en-US/firefox-$FIREFOX_VERSION.tar.bz2 \
+  && bunzip2 /tmp/firefox.tar.bz2 \
+  && tar xvf /tmp/firefox.tar \
+  && mv /firefox /opt/firefox-$FIREFOX_VERSION \
+  && ln -s /opt/firefox-$FIREFOX_VERSION/firefox /usr/bin/firefox
+
 # Install chromedriver for Selenium
 RUN mkdir -p /app/bin
-RUN curl https://chromedriver.storage.googleapis.com/83.0.4103.39/chromedriver_linux64.zip -o /tmp/chromedriver.zip \
+RUN curl https://chromedriver.storage.googleapis.com/$CHROMDRIVER_VERSION/chromedriver_linux64.zip -o /tmp/chromedriver.zip \
     && unzip /tmp/chromedriver.zip -d /app/bin/ \
     && rm /tmp/chromedriver.zip
-#COPY chromedriver /app/bin/chromedriver
 
+RUN wget https://github.com/mozilla/geckodriver/releases/download/v$FIREFOXDRIVER_VERSION/geckodriver-v$FIREFOXDRIVER_VERSION-linux64.tar.gz \
+    && tar -xf geckodriver-v0.26.0-linux64.tar.gz \
+    && cp geckodriver /app/bin/geckodriver
+
+# 1- Define Maven version
 ARG MAVEN_VERSION=3.6.3
-
 # 2- Define a constant with the working directory
 ARG USER_HOME_DIR="/root"
 
@@ -51,11 +67,10 @@ RUN mkdir -p /usr/share/maven /usr/share/maven/ref \
 ENV MAVEN_HOME /usr/share/maven
 ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
 
-RUN mvn package
-#COPY src /app/src
-#COPY pom.xml /app
-COPY testng /app/testng
-COPY entrypoint2.sh /entrypoint2.sh
-RUN chmod +x /app/bin/chromedriver
+COPY . /app
 #RUN mvn -f /app/pom.xml clean package
-ENTRYPOINT ["/entrypoint2.sh"]
+#RUN cp /app/target/SeleniumDocker-1.0-SNAPSHOT-fat-tests.jar /app/SeleniumDocker-1.0-SNAPSHOT-fat-tests.jar
+WORKDIR /app
+RUN chmod +x /app/bin/chromedriver
+RUN chmod +x /app/bin/geckodriver
+#ENTRYPOINT ["/app/entrypoint.sh"]
