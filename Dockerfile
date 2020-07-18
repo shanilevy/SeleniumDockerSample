@@ -1,4 +1,4 @@
-FROM kshivaprasad/java
+FROM kshivaprasad/java:1.8
 RUN apt-get update
 #RUN apt-get upgrade --fix-missing -y
 RUN apt-get install -y curl
