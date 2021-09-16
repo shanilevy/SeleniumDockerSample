@@ -11,7 +11,7 @@ steps:
 # Connect to GCE server and pull new image
 - name: 'gcr.io/cloud-builders/gcloud'
   #args: ['compute', 'ssh', '$_SERVER', '--zone', '$_ZONE', '--command', 'gcloud docker -- pull gcr.io/dataops-319100/selenium_docker_sample:latest']
-  args: ['compute', 'instances', 'create-with-container', '$_SERVER', '--zone', '$_ZONE', '--tags', 'allow-http', '--container-image', 'gcr.io/dataops-319100/selenium_docker_sample:latest']
+  args: ['compute', 'instances', 'create-with-container', '$_SERVER', '--zone', '$_ZONE', '--network', 'dev', '--tags', 'allow-http', '--container-image', 'gcr.io/dataops-319100/selenium_docker_sample:latest']
 
 # Connect to server and stop current container
 #- name: 'gcr.io/cloud-builders/gcloud'
