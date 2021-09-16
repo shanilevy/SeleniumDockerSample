@@ -16,7 +16,7 @@ steps:
 # Connect to server and stop current container
 - name: 'gcr.io/cloud-builders/gcloud'
   #args: ['compute', 'ssh', '$_SERVER', '--zone', '$_ZONE',  '--command', 'docker stop my-image']
-  args: ['compute', 'ssh', '$_SERVER', '--zone', '$_ZONE',  '--project', 'dataops-319100']
+  args: ['compute', 'ssh', 'my-gce-vm-server', '--zone', '$_ZONE',  '--project', 'dataops-319100']
 
 # Connect to server and stop current container
 #- name: 'gcr.io/cloud-builders/gcloud'
