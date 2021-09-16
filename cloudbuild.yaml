@@ -1,0 +1,29 @@
+steps:
+# Build Docker image: docker build -f Dockerfile -t gcr.io/dataops-319100/selenium_docker_sample:latest .
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-f', 'Dockerfile', '-t', 'gcr.io/dataops-319100/selenium_docker_sample:latest', '.']
+
+
+# Push to GCR: gcloud docker -- push gcr.io/dataops-319100/selenium_docker_sample:latest
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/dataops-319100/selenium_docker_sample:latest']
+
+# Connect to GCE server and pull new image
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['compute', 'ssh', '$_SERVER', '--zone', '$_ZONE', '--command', 'gcloud docker -- pull gcr.io/dataops-319100/selenium_docker_sample:latest']
+
+# Connect to server and stop current container
+#- name: 'gcr.io/cloud-builders/gcloud'
+#  args: ['compute', 'ssh', '$_SERVER', '--zone', '$_ZONE',  '--command', 'docker stop my-image']
+
+# Connect to server and stop current container
+#- name: 'gcr.io/cloud-builders/gcloud'
+#args: ['compute', 'ssh', '$_SERVER', '--zone', '$_ZONE',  '--command', 'docker rm my-image']
+
+  # Connect to server and start new container
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['compute', 'ssh', '$_SERVER', '--zone', '$_ZONE',  '--command', 'docker run  --restart always --name selenium_docker_sample -d --log-driver=gcplogs  gcr.io/dataops-319100/selenium_docker_sample:latest']
+
+substitutions:
+  _SERVER: 'my-gce-vm-server'
+  _ZONE: 'us-west1-a'
