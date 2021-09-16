@@ -1,21 +1,22 @@
 steps:
 # Build Docker image: docker build -f Dockerfile -t gcr.io/dataops-319100/selenium_docker_sample:latest .
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-f', 'Dockerfile', '-t', 'gcr.io/dataops-319100/selenium_docker_sample:latest', '.']
+#- name: 'gcr.io/cloud-builders/docker'
+#  args: ['build', '-f', 'Dockerfile', '-t', 'gcr.io/dataops-319100/selenium_docker_sample:latest', '.']
 
 
 # Push to GCR: gcloud docker -- push gcr.io/dataops-319100/selenium_docker_sample:latest
-- name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'gcr.io/dataops-319100/selenium_docker_sample:latest']
+#- name: 'gcr.io/cloud-builders/docker'
+#  args: ['push', 'gcr.io/dataops-319100/selenium_docker_sample:latest']
 
 # Connect to GCE server and pull new image
-- name: 'gcr.io/cloud-builders/gcloud'
+#- name: 'gcr.io/cloud-builders/gcloud'
   #args: ['compute', 'ssh', '$_SERVER', '--zone', '$_ZONE', '--command', 'gcloud docker -- pull gcr.io/dataops-319100/selenium_docker_sample:latest']
-  args: ['compute', 'instances', 'create-with-container', '$_SERVER', '--zone', '$_ZONE', '--network', 'dev', '--subnet', 'dev-subnet-01', '--tags', 'allow-http', '--container-image', 'gcr.io/dataops-319100/selenium_docker_sample:latest']
+  #args: ['compute', 'instances', 'create-with-container', '$_SERVER', '--zone', '$_ZONE', '--network', 'dev', '--subnet', 'dev-subnet-01', '--tags', 'allow-http', '--container-image', 'gcr.io/dataops-319100/selenium_docker_sample:latest']
 
 # Connect to server and stop current container
-#- name: 'gcr.io/cloud-builders/gcloud'
-#  args: ['compute', 'ssh', '$_SERVER', '--zone', '$_ZONE',  '--command', 'docker stop my-image']
+- name: 'gcr.io/cloud-builders/gcloud'
+  #args: ['compute', 'ssh', '$_SERVER', '--zone', '$_ZONE',  '--command', 'docker stop my-image']
+  args: ['compute', 'ssh', '$_SERVER', '--zone', '$_ZONE',  '--project', 'dataops-319100']
 
 # Connect to server and stop current container
 #- name: 'gcr.io/cloud-builders/gcloud'
