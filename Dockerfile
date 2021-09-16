@@ -1,53 +1,54 @@
-FROM kshivaprasad/java:1.8
-RUN apt-get update
-#RUN apt-get upgrade --fix-missing -y
-RUN apt-get install -y curl
-RUN apt-get install -y p7zip \
-    p7zip-full \
-    unace \
-    zip \
+FROM openjdk:8-jdk-slim-buster
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        python3.7 \
+        python3-pip \
+        python3.7-dev \
+        python3-setuptools \
+        python3-wheel
+
+# Essential tools and xvfb
+RUN apt-get update && apt-get install -y \
+    software-properties-common \
     unzip \
-    bzip2
+    curl \
+    vim \
+    xvfb \
+    git 
 
-#Firefox
-ARG FIREFOX_VERSION=78.0.2
-ARG CHROME_VERSION=83.0.4103.116
-ARG CHROMDRIVER_VERSION=83.0.4103.39
-ARG FIREFOXDRIVER_VERSION=0.26.0
+RUN python3 -m pip install --upgrade pip
 
-# Install Chrome
+#Version numbers
+ARG CHROME_VERSION=92.0.4515.107
+ARG CHROMDRIVER_VERSION=92.0.4515.107
+
+#Install Chrome
 RUN curl http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_$CHROME_VERSION-1_amd64.deb -o /chrome.deb
-RUN dpkg -i /chrome.deb || apt-get install -yf
-RUN rm /chrome.deb
+RUN apt install -y ./chrome.deb 
 
-# Install firefox
-RUN wget --no-verbose -O /tmp/firefox.tar.bz2 https://download-installer.cdn.mozilla.net/pub/firefox/releases/$FIREFOX_VERSION/linux-x86_64/en-US/firefox-$FIREFOX_VERSION.tar.bz2 \
-  && bunzip2 /tmp/firefox.tar.bz2 \
-  && tar xvf /tmp/firefox.tar \
-  && mv /firefox /opt/firefox-$FIREFOX_VERSION \
-  && ln -s /opt/firefox-$FIREFOX_VERSION/firefox /usr/bin/firefox
+# Disable the SUID sandbox so that chrome can launch without being in a privileged container
+RUN dpkg-divert --add --rename --divert /opt/google/chrome/google-chrome.real /opt/google/chrome/google-chrome \
+    && echo "#!/bin/bash\nexec /opt/google/chrome/google-chrome.real --no-sandbox --disable-setuid-sandbox \"\$@\"" > /opt/google/chrome/google-chrome \
+    && chmod 755 /opt/google/chrome/google-chrome
+ 
+# Chrome Driver
+RUN mkdir -p /opt/selenium \
+    && curl http://chromedriver.storage.googleapis.com/$CHROMDRIVER_VERSION/chromedriver_linux64.zip -o /opt/selenium/chromedriver_linux64.zip \
+    && cd /opt/selenium; unzip /opt/selenium/chromedriver_linux64.zip; rm -rf chromedriver_linux64.zip; ln -fs /opt/selenium/chromedriver /usr/local/bin/chromedriver;
 
-# Install chromedriver for Selenium
-RUN mkdir -p /app/bin
-RUN curl https://chromedriver.storage.googleapis.com/$CHROMDRIVER_VERSION/chromedriver_linux64.zip -o /tmp/chromedriver.zip \
-    && unzip /tmp/chromedriver.zip -d /app/bin/ \
-    && rm /tmp/chromedriver.zip
-
-RUN wget https://github.com/mozilla/geckodriver/releases/download/v$FIREFOXDRIVER_VERSION/geckodriver-v$FIREFOXDRIVER_VERSION-linux64.tar.gz \
-    && tar -xf geckodriver-v0.26.0-linux64.tar.gz \
-    && cp geckodriver /app/bin/geckodriver
-
+#Install Maven
 # 1- Define Maven version
-ARG MAVEN_VERSION=3.6.3
+ARG MAVEN_VERSION=3.8.2
 # 2- Define a constant with the working directory
 ARG USER_HOME_DIR="/root"
-
 # 3- Define the SHA key to validate the maven download
-ARG SHA=c35a1803a6e70a126e80b2b3ae33eed961f83ed74d18fcd16909b2d44d7dada3203f1ffe726c17ef8dcca2dcaa9fca676987befeadc9b9f759967a8cb77181c0
-
+#ARG SHA=c35a1803a6e70a126e80b2b3ae33eed961f83ed74d18fcd16909b2d44d7dada3203f1ffe726c17ef8dcca2dcaa9fca676987befeadc9b9f759967a8cb77181c0
+ARG SHA=b0bf39460348b2d8eae1c861ced6c3e8a077b6e761fb3d4669be5de09490521a74db294cf031b0775b2dfcd57bd82246e42ce10904063ef8e3806222e686f222
 # 4- Define the URL where maven can be downloaded from
-ARG BASE_URL=http://apachemirror.wuchna.com/maven/maven-3/${MAVEN_VERSION}/binaries
-
+ARG BASE_URL=http://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries
 # 5- Create the directories, download maven, validate the download, install it, remove downloaded file and set links
 RUN mkdir -p /usr/share/maven /usr/share/maven/ref \
   && echo "Downlaoding maven" \
@@ -62,15 +63,10 @@ RUN mkdir -p /usr/share/maven /usr/share/maven/ref \
   && echo "Cleaning and setting links" \
   && rm -f /tmp/apache-maven.tar.gz \
   && ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
-
 # 6- Define environmental variables required by Maven, like Maven_Home directory and where the maven repo is located
 ENV MAVEN_HOME /usr/share/maven
 ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
-
+#Copy our project
 COPY . /app
-#RUN mvn -f /app/pom.xml clean package
-#RUN cp /app/target/SeleniumDocker-1.0-SNAPSHOT-fat-tests.jar /app/SeleniumDocker-1.0-SNAPSHOT-fat-tests.jar
+#Making our working directory as /app
 WORKDIR /app
-RUN chmod +x /app/bin/chromedriver
-RUN chmod +x /app/bin/geckodriver
-#ENTRYPOINT ["/app/entrypoint.sh"]
